@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:my_financial_app/models/Total_income.dart';
+import 'package:flutter/foundation.dart';
+import 'package:my_financial_app/models/TotalIncomeModel.dart';
 import 'package:my_financial_app/models/Transaction_type.dart';
 import 'package:my_financial_app/models/TransactionModel.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,10 +16,14 @@ class DatabaseInstance {
   static final DatabaseInstance db = DatabaseInstance._();
   static Database? _database;
 
+  // final String id = 'id';
+
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
-    print(_database);
+    if(kDebugMode) {
+      print(_database);
+    }
     return _database!;
   }
 
@@ -57,8 +62,10 @@ class DatabaseInstance {
   // action for transaction type
   addTransactionType(TransactionType transactionType) async {
     final db = await database;
-    print(transactionType.toMap());
-    var response = await db.insert(
+    if(kDebugMode) {
+      print(transactionType.toMap());
+    }
+    await db.insert(
       "transaction_type", 
       transactionType.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace
@@ -69,18 +76,38 @@ class DatabaseInstance {
     final db = await database;
     var response = await db.query("transaction_type");
     List<TransactionType> list = response.map((e) => TransactionType.fromMap(e)).toList();
-    print(list);
+    if(kDebugMode) {
+      print(list);
+    }
     return list;
   }
 
   addUserTransaction(TransactionModel transactionModel) async {
     final db = await database;
-    print(transactionModel.toMap());
-    var response = await db.insert(
+    if(kDebugMode) {
+      print(transactionModel.toMap());
+    }
+    await db.insert(
       "user_transaction", 
       transactionModel.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace
     );
+  }
+
+  Future<int> updateUserTransaction(int idParam, Map<String, dynamic> row) async {
+    final db = await database;
+    var response = await db.update("user_transaction", row, where: 'id=?', whereArgs: [idParam]);
+    // List<TransactionModel> list = response.map((e) => TransactionModel.fromMap(e)).toList();
+    return response;
+    // return list;
+  }
+
+  Future<int> deleteUserTransaction(int idParam) async {
+    final db = await database;
+    var response = await db.delete("user_transaction", where: 'id=?', whereArgs: [idParam]);
+    // List<TransactionModel> list = response.map((e) => TransactionModel.fromMap(e)).toList();
+    return response;
+    // return list;
   }
 
   Future <List<TransactionModel>> getAllUserTransaction() async {
@@ -92,26 +119,35 @@ class DatabaseInstance {
 
   Future <List<TransactionModel>> getTransactionByMonth(String mmYY) async {
     final db = await database;
-    var response = await db.rawQuery('SELECT id, name, description, ammount, date, transaction_type_id FROM user_transaction WHERE STRFTIME("%m-%Y", date)="${mmYY}"');
-    // await db.rawQuery('SELECT STRFTIME("%m-%y", date) AS month, COUNT(id) as count FROM user_transaction GROUP BY STRFTIME("%m-%y", date)');
-    print(response);
+    var response = await db.rawQuery('SELECT id, name, description, ammount, date, transaction_type_id FROM user_transaction WHERE STRFTIME("%m-%Y", date)="$mmYY"');
     List<TransactionModel> list = response.map((e) => TransactionModel.fromMap(e)).toList();
     return list;
   }
 
   Future testGetTransactionByMonth(String mmYY) async {
     final db = await database;
-    var response = await db.rawQuery('SELECT id, name, description, ammount, date, transaction_type_id FROM user_transaction WHERE STRFTIME("%m-%Y", date)="${mmYY}"');
-    // await db.rawQuery('SELECT STRFTIME("%m-%y", date) AS month, COUNT(id) as count FROM user_transaction GROUP BY STRFTIME("%m-%y", date)');
-    // print(response);
+    var response = await db.rawQuery('SELECT id, name, description, ammount, date, transaction_type_id FROM user_transaction WHERE STRFTIME("%m-%Y", date)="$mmYY"');
     return response;
   }
   Future <List<TotalIncomeModel>> getIncomeByMonth(mmYY) async{
     final db = await database;
-    var response = await db.rawQuery('SELECT SUM(ammount) AS ammount,name FROM user_transaction WHERE transaction_type_id=2 AND STRFTIME("%m-%Y", date)="${mmYY}"');
-    // print(response);
-    List<TotalIncomeModel> mantap = response.map((e) => TotalIncomeModel.fromMap(e)).toList();
+    var response = await db.rawQuery('SELECT SUM(ammount) AS ammount,name FROM user_transaction WHERE transaction_type_id=2 AND STRFTIME("%m-%Y", date)="$mmYY"');
+    if(kDebugMode) {
+      print(response);
+    }
+    List<TotalIncomeModel> list = response.map((e) => TotalIncomeModel.fromMap(e)).toList();
 
-    return mantap;
+    return list;
+  }
+
+  Future <List<TotalIncomeModel>> getOutcomeByMonth(mmYY) async{
+    final db = await database;
+    var response = await db.rawQuery('SELECT SUM(ammount) AS ammount,name FROM user_transaction WHERE transaction_type_id=1 AND STRFTIME("%m-%Y", date)="$mmYY"');
+    if(kDebugMode) {
+      print(response);
+    }
+    List<TotalIncomeModel> list = response.map((e) => TotalIncomeModel.fromMap(e)).toList();
+
+    return list;
   }
 }

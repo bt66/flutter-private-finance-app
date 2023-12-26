@@ -1,5 +1,5 @@
 name: my_financial_app
-description: A new Flutter project.
+description: financial app.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -39,6 +39,7 @@ dependencies:
   intl: ^0.18.1
   path_provider: ^2.0.11
   syncfusion_flutter_datepicker: ^23.1.42
+  money_formatter: ^0.0.5
 
 dev_dependencies:
   flutter_test:

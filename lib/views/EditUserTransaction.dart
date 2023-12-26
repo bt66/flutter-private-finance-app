@@ -6,20 +6,34 @@ import 'package:my_financial_app/models/TransactionModel.dart';
 // import 'package:my_financial_app/models/Transaction_type.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class AddUserTransaction extends StatefulWidget {
-  const AddUserTransaction({super.key});
+class EditUserTransaction extends StatefulWidget {
+  TransactionModel transactionModel;
+  EditUserTransaction({super.key, required this.transactionModel});
 
-  
   @override
-  State<AddUserTransaction> createState() => _AddUserTransactionState();
+  State<EditUserTransaction> createState() => _EditUserTransactionState();
 }
 
-class _AddUserTransactionState extends State<AddUserTransaction> {
-  int _transaction_type = 0;
+class _EditUserTransactionState extends State<EditUserTransaction> {
+  static TransactionModel transactionModel = TransactionModel();
+
+  // late String initialNameField = transactionModel.name!;
+
   TextEditingController nameFieldController = TextEditingController();
   TextEditingController descriptionFieldController = TextEditingController();
   TextEditingController ammountFieldController = TextEditingController();
   DateTime _date = new DateTime.now();
+  int _transaction_type = 0;
+
+  void initState() {
+    nameFieldController.text = widget.transactionModel.name ?? "";
+    descriptionFieldController.text = widget.transactionModel.description ?? "";
+    ammountFieldController.text = widget.transactionModel.ammount.toString() ?? "";
+    _transaction_type = widget.transactionModel.transaction_type_id ?? 0;
+    _date = DateTime.parse(widget.transactionModel.date!) ?? new DateTime.now();
+    super.initState();
+  }
+  
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     print(args.value);
   }
@@ -39,7 +53,7 @@ class _AddUserTransactionState extends State<AddUserTransaction> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add User Transaction"),
+        title: Text("Edit User Transaction"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -136,18 +150,19 @@ class _AddUserTransactionState extends State<AddUserTransaction> {
           ),
           ElevatedButton(
             onPressed: () async{
-              await DatabaseInstance.db.addUserTransaction(
-                new TransactionModel(
-                  name: nameFieldController.text,
-                  ammount: double.parse(ammountFieldController.text),
-                  description: descriptionFieldController.text,
-                  transaction_type_id: _transaction_type,
-                  date: _date.toString()
-                )
+              await DatabaseInstance.db.updateUserTransaction(
+                widget.transactionModel!.id!,
+                {
+                  'name' : nameFieldController.text,
+                  'description' : descriptionFieldController.text,
+                  'ammount': ammountFieldController.text,
+                  'date': _date.toString(),
+                  'transaction_type_id': _transaction_type
+                }
               );
               Navigator.of(context).pop(true);
             }, 
-            child: Text("Submit") 
+            child: Text("Update") 
           )
           // Container(
           //   child: SfDateRangePicker(
