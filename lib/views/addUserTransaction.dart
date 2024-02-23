@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_financial_app/database_instance.dart';
 import 'package:my_financial_app/models/TransactionModel.dart';
-
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 // import 'package:my_financial_app/models/Transaction_type.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -19,6 +19,7 @@ class _AddUserTransactionState extends State<AddUserTransaction> {
   TextEditingController nameFieldController = TextEditingController();
   TextEditingController descriptionFieldController = TextEditingController();
   TextEditingController ammountFieldController = TextEditingController();
+  RegExp regex = RegExp(r'\d+');
   DateTime _date = new DateTime.now();
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     print(args.value);
@@ -76,8 +77,14 @@ class _AddUserTransactionState extends State<AddUserTransaction> {
             child: TextFormField(
               controller: ammountFieldController,
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                CurrencyTextInputFormatter(
+                  locale: 'id',
+                  decimalDigits: 0,
+                  symbol: 'IDR ',
+                ),
+                // FilteringTextInputFormatter.digitsOnly
               ],
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 icon: Icon(Icons.money),
                 hintText: "Ammount of your transaction",
@@ -139,7 +146,7 @@ class _AddUserTransactionState extends State<AddUserTransaction> {
               await DatabaseInstance.db.addUserTransaction(
                 new TransactionModel(
                   name: nameFieldController.text,
-                  ammount: double.parse(ammountFieldController.text),
+                  ammount: double.parse(regex.allMatches(ammountFieldController.text).map((match) => match.group(0)).join()),
                   description: descriptionFieldController.text,
                   transaction_type_id: _transaction_type,
                   date: _date.toString()

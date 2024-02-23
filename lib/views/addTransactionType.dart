@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_financial_app/database_instance.dart';
 import 'package:my_financial_app/models/Transaction_type.dart';
-
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 class EditPerson extends StatefulWidget {
   const EditPerson({super.key});

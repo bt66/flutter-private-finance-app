@@ -266,9 +266,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin{
                         itemCount: snapshot.data!.length,
                         itemBuilder: (BuildContext context, int index) {
                           TransactionModel item = snapshot.data![index];
-                          return Dismissible(
-                            key: UniqueKey(),
-                            child: ListTile(
+                          return ListTile(
                               onLongPress: () {
 
                               },
@@ -318,8 +316,11 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin{
 
                                 ],
                               ) 
-                            )
-                          );
+                            );
+                          // Dismissible(
+                          //   key: UniqueKey(),
+                          //   child: 
+                          // );
                         }
                       ); 
                     } else {
